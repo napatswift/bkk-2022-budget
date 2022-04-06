@@ -1,0 +1,9 @@
+rm -f ./bud-images/*.jpg
+convert -verbose \
+        -density 190 \
+        ./bud-pdf/65075.pdf[27-63] \
+        -sharpen 0x1.0 \
+        -quality 100 \
+        -alpha remove -alpha off \
+        -set filename:f '%t' \
+        ./bud-images/%[filename:f]-%03d.jpg

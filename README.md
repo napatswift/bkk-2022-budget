@@ -1,2 +1,2 @@
-# bkk-2022-budget
-convert Bangkok budget pdf to CSV
+# BKK 2022Budget
+convert Bangkok budget PDF to CSV
