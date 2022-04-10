@@ -91,10 +91,9 @@ def main():
 
     pages = listdir(dir)
     pages.sort()
-    print(dir.basename())
 
     text_list = []
-    for ii in tqdm(pages[:5]):
+    for ii in tqdm(pages):
         filepath = path.Path(dir + '/' + ii)
         text = matToText(filepath)
         text_list.append(text)
@@ -110,7 +109,12 @@ def main():
             line_num += 1
 
     df = pd.DataFrame(df_text)
-    df.to_csv(f"{dir}/{dir.basename()}_raw.csv", index=0)
+
+    csv_dir = path.Path('bud-csv')
+    if not csv_dir.exists():
+      csv_dir.mkdir();
+
+    df.to_csv(f"{csv_dir}/{dir.basename()}_raw.csv", index=0)
 
     rects_dir = path.Path(dir+'/'+'rects')
     if not rects_dir.exists():
