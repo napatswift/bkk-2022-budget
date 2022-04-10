@@ -1,9 +1,18 @@
-rm -f ./bud-images/*.jpg
+filename="${1##*/}"
+budim="bud-images/"
+mkdir -p ${budim}
+dir="$budim${filename%.*}"
+
+mkdir -p ${dir}
+rm -f ${dir}/*.jpg
+
 convert -verbose \
         -density 190 \
-        ./bud-pdf/65075.pdf[27-63] \
+        "$1" \
         -sharpen 0x1.0 \
         -quality 100 \
         -alpha remove -alpha off \
         -set filename:f '%t' \
-        ./bud-images/%[filename:f]-%03d.jpg
+        ${dir}/%03d.jpg
+
+python3.9 to_text.py ${dir}
