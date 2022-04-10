@@ -11,6 +11,9 @@ pytesseract.pytesseract.tesseract_cmd = '/usr/local/Cellar/tesseract/5.1.0/bin/t
 
 def matToText(filename, write=False):
     mat = cv.imread(filename)
+    
+    if mat is None: return mat
+
     draw_mat = mat.copy()
     gray = cv.cvtColor(mat, cv.COLOR_BGR2GRAY)
     th, threshed = cv.threshold(
@@ -86,6 +89,7 @@ def writeImages(df, src_dir, dest_dir):
                    (row[1].x, row[1].y), 0, .5, (0, 0, 255))
     cv.imwrite(dest_dir + '/' + currImageFilename, currImage)
 
+
 def main():
     dir = path.Path(sys.argv[1])
 
@@ -93,9 +97,10 @@ def main():
     pages.sort()
 
     text_list = []
-    for ii in tqdm(pages):
-        filepath = path.Path(dir + '/' + ii)
+    for page in tqdm(pages):
+        filepath = path.Path(dir + '/' + page)
         text = matToText(filepath)
+        if text is None: continue
         text_list.append(text)
 
     df_text = []
@@ -112,15 +117,16 @@ def main():
 
     csv_dir = path.Path('bud-csv')
     if not csv_dir.exists():
-      csv_dir.mkdir();
+        csv_dir.mkdir()
 
     df.to_csv(f"{csv_dir}/{dir.basename()}_raw.csv", index=0)
 
     rects_dir = path.Path(dir+'/'+'rects')
     if not rects_dir.exists():
-      rects_dir.mkdir();
+        rects_dir.mkdir()
 
     writeImages(df, dir, rects_dir)
 
+
 if __name__ == "__main__":
-  main()
+    main()
