@@ -4,7 +4,7 @@ mkdir -p ${budim}
 dir="$budim${filename%.*}"
 
 mkdir -p ${dir}
-rm -f ${dir}/*.jpg
+mkdir -p ${dir}/rects
 
 convert -verbose \
         -density 190 \
@@ -15,4 +15,4 @@ convert -verbose \
         -set filename:f '%t' \
         ${dir}/%03d.jpg
 
-python3.9 to_text.py ${dir}
+./to_text.o ${dir}

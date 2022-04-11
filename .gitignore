@@ -2,3 +2,5 @@
 .DS_Store
 /data/**
 bud-images/**/**.jpg
+.vscode/**
+*.o

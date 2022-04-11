@@ -4,10 +4,11 @@ import re
 import sys
 from path import Path
 
+
 def toRow(df, entry):
     row = {}
     row['job'] = entry['job']
-    levels = ['L1', 'L2', 'L3', 'L4', 'L5']
+    levels = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6']
     for i, node in enumerate(entry['nodes']):
         row[levels[i]] = ' '.join(df.loc[node].text.values)
     row['amount'] = df.loc[entry['nodes'][-1][-2]].text
@@ -34,7 +35,8 @@ def get_patern_of_bullet(String):
 
 def main():
     src = Path(sys.argv[1])
-    df = pd.read_csv(src)
+    df = pd.read_csv(src, sep='\t')
+    df = df.sort_values(by=['filename', 'line_num']).reset_index()
 
     job = ''
     bulletFlag = False
@@ -42,16 +44,21 @@ def main():
     entries = []
     entry = []
     for filename in df.filename.unique():
-        # print(filename)
-        page = df[df['filename'] == filename][1:]
+        page = df[df['filename'] == filename]
         lines = [[] for i in range(page.line_num.max()+1)]
         for i in page.index:
             lines[page.loc[i].line_num].append(i)
-        for i in lines[::-1]:
-            lineText = df.loc[i].text.values
-            bullet = get_patern_of_bullet(df.loc[i[0]].text.split(' ')[0])
 
-            if lineText[0].startswith('งาน:'):
+        for i in lines[1:]:
+            lineText = df.loc[i].text.values
+            if not i:
+                continue
+            if ' ' in df.loc[i[0]].text:
+                bullet = get_patern_of_bullet(df.loc[i[0]].text.split(' ')[0])
+            else:
+                bullet = get_patern_of_bullet(df.loc[i[0]].text)
+
+            if lineText[0].startswith('งาน') and df.loc[i[0]].line_num <= 2:
                 if (lineText[-1] == 'บาท'):
                     lineText = lineText[:-2]
                 job = ' '.join(lineText)
@@ -88,11 +95,12 @@ def main():
 
     items = pd.DataFrame([toRow(df, e) for e in entries])
     dest_dir = Path('bud-csv')
-    
+
     if not dest_dir.exists():
         dest_dir.mkdir()
 
     items.to_csv(f"{dest_dir}/{src.name[:src.name.rfind('.')]}_items.csv")
+
 
 if __name__ == '__main__':
     main()
